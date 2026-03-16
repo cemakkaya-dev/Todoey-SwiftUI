@@ -29,26 +29,31 @@ class TodoListViewController: SwipeTableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        title = "\(selectedCategory!.name)"
-        
-        if let categoryColorHex = selectedCategory?.color {
-            if let navBarColor = UIColor(hexString: categoryColorHex) {
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithOpaqueBackground()
-                appearance.backgroundColor = navBarColor
-                searchBar.barTintColor = navBarColor
-                tableView.backgroundColor = navBarColor
-                
-                let contrastColor = navBarColor.contrastingText()
-                appearance.titleTextAttributes = [.foregroundColor: contrastColor]
-                
-                navigationController?.navigationBar.standardAppearance = appearance
-                navigationController?.navigationBar.scrollEdgeAppearance = appearance
-                
-                navigationController?.navigationBar.tintColor = contrastColor
-            }
-        }
+
+        guard
+            let categoryHex = selectedCategory?.color,
+            let navBarColor = UIColor(hexString: categoryHex)
+        else { return }
+
+        title = selectedCategory?.name
+
+        let contrastColor = navBarColor.contrastingText()
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = navBarColor
+        appearance.titleTextAttributes = [.foregroundColor: contrastColor]
+        appearance.largeTitleTextAttributes = [.foregroundColor: contrastColor]
+
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+
+        navigationController?.navigationBar.tintColor = contrastColor
+
+        searchBar.barTintColor = navBarColor
+        searchBar.tintColor = contrastColor
+        tableView.backgroundColor = navBarColor
     }
     
     
@@ -150,7 +155,10 @@ class TodoListViewController: SwipeTableViewController {
     func loadItems() {
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+        
     }
     
     // MARK: - Delete Data From Swipe
@@ -161,6 +169,11 @@ class TodoListViewController: SwipeTableViewController {
                     self.realm.delete(itemForDeletion)
                 }
                 tableView.deleteRows(at: [indexPath], with: .left)
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+                
             } catch {
                 print("Error deleting category, \(error)")
             }

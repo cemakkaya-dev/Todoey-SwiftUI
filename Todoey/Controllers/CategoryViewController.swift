@@ -13,12 +13,14 @@ class CategoryViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     var categories: Results<Category>?
+    var lastSelectedColorHex: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         loadCategories()
     }
+    
     
     // MARK: - TableView Datasource Methods
     
