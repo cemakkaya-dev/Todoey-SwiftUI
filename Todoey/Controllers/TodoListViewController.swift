@@ -11,6 +11,7 @@ import RealmSwift
 
 class TodoListViewController: SwipeTableViewController {
     
+    @IBOutlet weak var searchBar: UISearchBar!
     var todoItems: Results<Item>?
     let realm = try! Realm()
     
@@ -36,6 +37,8 @@ class TodoListViewController: SwipeTableViewController {
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.backgroundColor = navBarColor
+                searchBar.barTintColor = navBarColor
+                tableView.backgroundColor = navBarColor
                 
                 let contrastColor = navBarColor.contrastingText()
                 appearance.titleTextAttributes = [.foregroundColor: contrastColor]
@@ -164,4 +167,3 @@ class TodoListViewController: SwipeTableViewController {
         }
     }
 }
-

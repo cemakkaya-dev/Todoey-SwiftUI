@@ -85,7 +85,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="searchBar" destination="L2W-0X-VsM" id="JDv-5Z-wcE"/>
+                        <outlet property="searchBar" destination="L2W-0X-VsM" id="vIb-jg-KbS"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Vj6-hs-psX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
