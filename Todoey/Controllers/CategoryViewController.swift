@@ -92,6 +92,7 @@ class CategoryViewController: SwipeTableViewController {
         if let categoryForDeletion = self.categories?[indexPath.row] {
             do {
                 try self.realm.write {
+                    self.realm.delete(categoryForDeletion.items)
                     self.realm.delete(categoryForDeletion)
                 }
                 tableView.deleteRows(at: [indexPath], with: .left)
