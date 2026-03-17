@@ -11,15 +11,13 @@ import RealmSwift
 
 class CategoryViewController: SwipeTableViewController {
     
-    let realm = try! Realm()
     var categories: Results<Category>?
     var lastSelectedColorHex: String?
     
     override func viewDidLoad() {
             super.viewDidLoad()
+        
             loadCategories()
-            
-            // İlk açılışta Todoey mavisini ayarla
             updateNavBar(with: "1D9BF6")
         }
     
@@ -69,20 +67,9 @@ class CategoryViewController: SwipeTableViewController {
     
     
     // MARK: - Data Manipulation Methods
-    func save(category: Category) {
-        do {
-            try realm.write{
-                realm.add(category)
-            }
-        } catch {
-            print("Error saving category \(error.localizedDescription)")
-        }
-        tableView.reloadData()
-    }
     
     func loadCategories() {
-        categories = realm.objects(Category.self)
-        
+        categories = DatabaseManager.shared.fetchCategories()
         tableView.reloadData()
     }
     
@@ -90,37 +77,21 @@ class CategoryViewController: SwipeTableViewController {
     
     override func updateModel(at indexPath: IndexPath) {
         if let categoryForDeletion = self.categories?[indexPath.row] {
-            do {
-                try self.realm.write {
-                    self.realm.delete(categoryForDeletion.items)
-                    self.realm.delete(categoryForDeletion)
-                }
-                tableView.deleteRows(at: [indexPath], with: .left)
-            } catch {
-                print("Error deleting category, \(error)")
-            }
+            DatabaseManager.shared.delete(category: categoryForDeletion)
+            tableView.deleteRows(at: [indexPath], with: .left)
         }
     }
     
     // MARK: - Add New Categories
     @IBAction func addButtondPressed(_ sender: UIBarButtonItem) {
-        var textField = UITextField()
-        let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "Add", style: .default) { (action) in
+        presentAddAlert(title: "Add New Category", placeholder: "Create new category") { newCategoryName in
             let newCategory = Category()
-            newCategory.name = textField.text!
+            newCategory.name = newCategoryName
             newCategory.color = UIColor.randomFlat().hexValue()
             
-            self.save(category: newCategory)
+            DatabaseManager.shared.save(category: newCategory)
+            self.tableView.reloadData()
         }
-        
-        alert.addTextField { alertTextField in
-            alertTextField.placeholder = "Add a new category"
-            textField = alertTextField
-        }
-        
-        alert.addAction(action)
-        present(alert, animated: true)
     }
     
     // MARK: - Navigation Bar Colors

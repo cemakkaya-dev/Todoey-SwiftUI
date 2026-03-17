@@ -81,3 +81,27 @@ extension UIColor {
         return nil
     }
 }
+
+// MARK: - UIViewController Extension (Alert Manager)
+
+extension UIViewController {
+    func presentAddAlert(title: String, placeholder: String, completion: @escaping (String) -> Void) {
+        var textField = UITextField()
+        let alert = UIAlertController(title: title, message: "", preferredStyle: .alert)
+        
+        let addAction = UIAlertAction(title: "Add", style: .default) { _ in
+            guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return }
+            completion(text)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = placeholder
+            textField = alertTextField
+        }
+        alert.addAction(addAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+}

@@ -13,8 +13,6 @@ class TodoListViewController: SwipeTableViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
     var todoItems: Results<Item>?
-    let realm = try! Realm()
-    
     var selectedCategory: Category? {
         didSet {
             loadItems()
@@ -98,57 +96,26 @@ class TodoListViewController: SwipeTableViewController {
     // MARK: - TableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let item = todoItems? [indexPath.row] {
-            do{
-                try realm.write{
-                    item.done = !item.done
-                }
-            } catch {
-                print("Error saving done status, \(error)")
-            }
+            DatabaseManager.shared.updateItemStatus(item: item)
         }
         
         tableView.reloadData()
-        
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
     
     // MARK: - Add New Items
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
-        
-        var textField = UITextField()
-        
-        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            
-            // what will happen once the user clicks the Add Item button on our UIAlert
-            
+        presentAddAlert(title: "Add New Todoey Item", placeholder: "Create new item") { newItemTitle in
             if let currentCategory = self.selectedCategory {
-                do {
-                    try self.realm.write {
-                        let newItem = Item()
-                        newItem.title = textField.text!
-                        newItem.dateCreated = Date()
-                        currentCategory.items.append(newItem)
-                    }
-                } catch {
-                    print("Error saving new items, \(error)")
-                }
+                let newItem = Item()
+                newItem.title = newItemTitle
+                newItem.dateCreated = Date()
+                
+                DatabaseManager.shared.save(item: newItem, to: currentCategory)
+                self.tableView.reloadData()
             }
-            
-            self.tableView.reloadData()
         }
-        
-        alert.addTextField { alertTextField in
-            alertTextField.placeholder = "Create new item"
-            textField = alertTextField
-            
-        }
-        
-        alert.addAction(action)
-        
-        present(alert, animated: true)
     }
     
     // MARK: - Model Manupulation Methods
@@ -165,18 +132,26 @@ class TodoListViewController: SwipeTableViewController {
     // MARK: - Delete Data From Swipe
     override func updateModel(at indexPath: IndexPath) {
         if let itemForDeletion = self.todoItems?[indexPath.row] {
-            do {
-                try self.realm.write {
-                    self.realm.delete(itemForDeletion)
-                }
-                tableView.deleteRows(at: [indexPath], with: .left)
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-                
-            } catch {
-                print("Error deleting category, \(error)")
+            DatabaseManager.shared.delete(item: itemForDeletion)
+            tableView.deleteRows(at: [indexPath], with: .left)
+        }
+    }
+}
+
+// MARK: - Search Bar Delegate Methods
+
+extension TodoListViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        } else {
+            if let category = selectedCategory {
+                todoItems = DatabaseManager.shared.searchItems(in: category, with: searchBar.text!)
+                tableView.reloadData()
             }
         }
     }

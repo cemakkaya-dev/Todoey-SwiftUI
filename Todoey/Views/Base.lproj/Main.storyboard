@@ -59,7 +59,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <textInputTraits key="textInputTraits"/>
                             <connections>
-                                <outlet property="delegate" destination="9u9-vs-S30" id="InT-Df-5iL"/>
+                                <outlet property="delegate" destination="9u9-vs-S30" id="VkX-8f-rl6"/>
                             </connections>
                         </searchBar>
                         <prototypes>
