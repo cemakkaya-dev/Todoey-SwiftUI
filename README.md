@@ -32,4 +32,4 @@ This project strictly follows **Clean Code** principles and modern iOS developme
 
 1. Clone this repository:
    ```bash
-   git clone [https://github.com/yourusername/Todoey.git](https://github.com/yourusername/Todoey.git)
+   git clone [https://github.com/Dev-MuTTiNeeR/Todoey-SwiftUI/]
